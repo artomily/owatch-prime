@@ -5,7 +5,6 @@
 // rest of the app working unchanged (it dynamically imports this file),
 // re-export the application WalletProvider from the context implementation.
 
-import { WalletProvider as WalletContextProvider } from '../context/WalletContext';
+import { WalletProvider as WalletContextProvider } from "../context/WalletContext";
 
 export { WalletContextProvider };
-

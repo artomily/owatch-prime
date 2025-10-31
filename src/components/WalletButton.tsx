@@ -1,10 +1,21 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useWalletContext } from '../context/WalletContext';
+import { useEffect, useState } from "react";
+import { useWalletContext } from "../context/WalletContext";
 
 export function WalletButton() {
-  const { isConnected, address, balance, isConnecting, error, hashpackAvailable, showDummyOption, connect, connectDummy, disconnect } = useWalletContext();
+  const {
+    isConnected,
+    address,
+    balance,
+    isConnecting,
+    error,
+    hashpackAvailable,
+    showDummyOption,
+    connect,
+    connectDummy,
+    disconnect,
+  } = useWalletContext();
   const [localBalance, setLocalBalance] = useState<number>(0);
 
   useEffect(() => {
@@ -13,7 +24,7 @@ export function WalletButton() {
   }, [balance]);
 
   const formatWalletAddress = (addr: string) => {
-    if (!addr) return '';
+    if (!addr) return "";
     if (addr.length > 10) return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
     return addr;
   };
@@ -23,12 +34,16 @@ export function WalletButton() {
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2 bg-gray-800 px-3 py-2 rounded-lg">
           <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-          <span className="text-white font-semibold text-sm">{localBalance} OWATCH</span>
+          <span className="text-white font-semibold text-sm">
+            {localBalance} OWATCH
+          </span>
         </div>
 
         <div className="flex items-center space-x-2 bg-gray-800 px-3 py-2 rounded-lg">
           <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-          <span className="text-white text-sm">{formatWalletAddress(address)}</span>
+          <span className="text-white text-sm">
+            {formatWalletAddress(address)}
+          </span>
         </div>
 
         <button
@@ -45,7 +60,9 @@ export function WalletButton() {
   return (
     <div className="flex items-center space-x-3">
       {isConnecting ? (
-        <div className="px-4 py-2 bg-gray-700 text-white rounded">Connecting...</div>
+        <div className="px-4 py-2 bg-gray-700 text-white rounded">
+          Connecting...
+        </div>
       ) : (
         <>
           {/* If HashPack detected in production, prefer that. In dev, prefer HashConnect flow. */}

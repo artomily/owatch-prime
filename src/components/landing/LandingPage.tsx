@@ -32,7 +32,8 @@ interface LandingPageProps {
 export function LandingPage({
   onWalletConnect,
 }: LandingPageProps): JSX.Element {
-  const { isConnected: connected, isConnecting: connecting } = useWalletContext();
+  const { isConnected: connected, isConnecting: connecting } =
+    useWalletContext();
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
 

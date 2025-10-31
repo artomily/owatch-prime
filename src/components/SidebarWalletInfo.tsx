@@ -5,7 +5,11 @@ import { useWalletContext } from "../context/WalletContext";
 import { MoreVertical, LogOut, Copy } from "lucide-react";
 
 export function SidebarWalletInfo() {
-  const { address: publicKey, isConnected: connected, disconnect } = useWalletContext();
+  const {
+    address: publicKey,
+    isConnected: connected,
+    disconnect,
+  } = useWalletContext();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +52,7 @@ export function SidebarWalletInfo() {
           // trigger connect via context (let UI decide which connector to use)
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           (async () => {
-            const ctx = await import('../context/WalletContext');
+            const ctx = await import("../context/WalletContext");
             // call connect from the live context via DOM-driven event is not straightforward here;
             // instead, the top-level WalletButton handles connection flows. Keep placeholder button.
           })();
@@ -77,9 +81,7 @@ export function SidebarWalletInfo() {
           <div>
             <p className="text-xs dark:text-gray-400 text-gray-500">Wallet</p>
             <p className="text-sm font-medium dark:text-white text-gray-900">
-              {publicKey
-                ? formatWalletAddress(publicKey)
-                : "Connected"}
+              {publicKey ? formatWalletAddress(publicKey) : "Connected"}
             </p>
           </div>
         </div>

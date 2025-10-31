@@ -42,10 +42,10 @@ export interface WatchSession {
 export interface Transaction {
   id: string;
   userId: string;
-  type: 'earning' | 'withdrawal' | 'deposit';
+  type: "earning" | "withdrawal" | "deposit";
   amount: number;
-  tokenType: 'OWATCH';
-  status: 'pending' | 'completed' | 'failed';
+  tokenType: "OWATCH";
+  status: "pending" | "completed" | "failed";
   txHash?: string;
   createdAt: Date;
 }
@@ -61,8 +61,8 @@ export interface DashboardStats {
 
 // Component Props
 export interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   loading?: boolean;
   children: React.ReactNode;
@@ -102,10 +102,10 @@ export interface WalletConnection {
   isConnected: boolean;
 }
 
-export type WalletProvider = 'hashpack' | 'hashconnect' | 'dummy';
+export type WalletProvider = "hashpack" | "hashconnect" | "dummy";
 
 // Theme types
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
 export interface ThemeConfig {
   mode: Theme;

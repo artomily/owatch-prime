@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, ReactNode, useEffect, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  ReactNode,
+  useEffect,
+  useRef,
+} from "react";
 
 // Types
 interface WalletState {
@@ -16,14 +23,17 @@ interface WalletState {
 }
 
 type WalletAction =
-  | { type: 'CONNECT_START' }
-  | { type: 'CONNECT_SUCCESS'; payload: { address: string; balance: number; provider?: string } }
-  | { type: 'CONNECT_ERROR'; payload: string }
-  | { type: 'DISCONNECT' }
-  | { type: 'UPDATE_BALANCE'; payload: number }
-  | { type: 'SET_HASHPACK_AVAILABLE'; payload: boolean }
-  | { type: 'SET_HASHCONNECT_AVAILABLE'; payload: boolean }
-  | { type: 'SHOW_DUMMY_OPTION'; payload: boolean };
+  | { type: "CONNECT_START" }
+  | {
+      type: "CONNECT_SUCCESS";
+      payload: { address: string; balance: number; provider?: string };
+    }
+  | { type: "CONNECT_ERROR"; payload: string }
+  | { type: "DISCONNECT" }
+  | { type: "UPDATE_BALANCE"; payload: number }
+  | { type: "SET_HASHPACK_AVAILABLE"; payload: boolean }
+  | { type: "SET_HASHCONNECT_AVAILABLE"; payload: boolean }
+  | { type: "SHOW_DUMMY_OPTION"; payload: boolean };
 
 interface WalletContextType extends WalletState {
   connect: () => Promise<void>;
@@ -35,7 +45,7 @@ interface WalletContextType extends WalletState {
 // Initial state
 const initialState: WalletState = {
   isConnected: false,
-  address: '',
+  address: "",
   balance: 0,
   isConnecting: false,
   error: null,
@@ -47,13 +57,13 @@ const initialState: WalletState = {
 // Reducer
 function walletReducer(state: WalletState, action: WalletAction): WalletState {
   switch (action.type) {
-    case 'CONNECT_START':
+    case "CONNECT_START":
       return {
         ...state,
         isConnecting: true,
         error: null,
       };
-    case 'CONNECT_SUCCESS':
+    case "CONNECT_SUCCESS":
       return {
         ...state,
         isConnected: true,
@@ -62,23 +72,23 @@ function walletReducer(state: WalletState, action: WalletAction): WalletState {
         balance: action.payload.balance,
         error: null,
       };
-    case 'SET_HASHPACK_AVAILABLE':
+    case "SET_HASHPACK_AVAILABLE":
       return { ...state, hashpackAvailable: action.payload };
-    case 'SET_HASHCONNECT_AVAILABLE':
+    case "SET_HASHCONNECT_AVAILABLE":
       return { ...state, hashconnectAvailable: action.payload };
-    case 'SHOW_DUMMY_OPTION':
+    case "SHOW_DUMMY_OPTION":
       return { ...state, showDummyOption: action.payload };
-    case 'CONNECT_ERROR':
+    case "CONNECT_ERROR":
       return {
         ...state,
         isConnecting: false,
         error: action.payload,
       };
-    case 'DISCONNECT':
+    case "DISCONNECT":
       return {
         ...initialState,
       };
-    case 'UPDATE_BALANCE':
+    case "UPDATE_BALANCE":
       return {
         ...state,
         balance: action.payload,
@@ -103,41 +113,41 @@ export function WalletProvider({ children }: WalletProviderProps) {
   // On mount, detect whether HashPack extension is available in production and whether
   // the optional HashConnect library is present (for development flows).
   useEffect(() => {
-    const win: any = typeof window !== 'undefined' ? window : undefined;
+    const win: any = typeof window !== "undefined" ? window : undefined;
     const hasHashpack = !!(win && (win.hashpack || win.hedera || win.Hedera));
-    dispatch({ type: 'SET_HASHPACK_AVAILABLE', payload: hasHashpack });
+    dispatch({ type: "SET_HASHPACK_AVAILABLE", payload: hasHashpack });
 
     (async () => {
       try {
         // Import using a constructed string to avoid bundlers statically
         // resolving the optional package when it's not installed.
-        const pkg = ['@hashgraph', 'hashconnect'].join('/');
+        const pkg = ["@hashgraph", "hashconnect"].join("/");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const mod = await import(pkg);
         if (mod && (mod.HashConnect || mod.default)) {
-          dispatch({ type: 'SET_HASHCONNECT_AVAILABLE', payload: true });
+          dispatch({ type: "SET_HASHCONNECT_AVAILABLE", payload: true });
         } else {
-          dispatch({ type: 'SET_HASHCONNECT_AVAILABLE', payload: false });
+          dispatch({ type: "SET_HASHCONNECT_AVAILABLE", payload: false });
         }
       } catch (e) {
         // If the package isn't installed or import fails, mark as unavailable
-        dispatch({ type: 'SET_HASHCONNECT_AVAILABLE', payload: false });
+        dispatch({ type: "SET_HASHCONNECT_AVAILABLE", payload: false });
       }
     })();
   }, []);
 
   const connect = async () => {
-    dispatch({ type: 'CONNECT_START' });
+    dispatch({ type: "CONNECT_START" });
 
     try {
-      const isDev = process.env.NODE_ENV === 'development';
-      const win: any = typeof window !== 'undefined' ? window : undefined;
+      const isDev = process.env.NODE_ENV === "development";
+      const win: any = typeof window !== "undefined" ? window : undefined;
 
       // Development: prefer HashConnect (library-driven flow) if present
       if (isDev) {
         try {
-          const pkg = ['@hashgraph', 'hashconnect'].join('/');
+          const pkg = ["@hashgraph", "hashconnect"].join("/");
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           const mod = await import(pkg);
@@ -146,9 +156,9 @@ export function WalletProvider({ children }: WalletProviderProps) {
           hashConnectRef.current = hc;
 
           const appMetadata = {
-            name: 'owatch-prime (dev)',
-            description: 'owatch-prime development app',
-            icon: '',
+            name: "owatch-prime (dev)",
+            description: "owatch-prime development app",
+            icon: "",
           };
 
           try {
@@ -161,23 +171,53 @@ export function WalletProvider({ children }: WalletProviderProps) {
             await hc.connect();
 
             const pairedAccount = (hc as any).pairedAccounts?.[0] || null;
-            const address = pairedAccount || `hashdev:${Math.random().toString(36).slice(2, 10)}`;
+            const address =
+              pairedAccount ||
+              `hashdev:${Math.random().toString(36).slice(2, 10)}`;
             const mockBalance = Math.floor(Math.random() * 10000);
 
-            dispatch({ type: 'CONNECT_SUCCESS', payload: { address, balance: mockBalance, provider: 'hashconnect' } });
+            dispatch({
+              type: "CONNECT_SUCCESS",
+              payload: {
+                address,
+                balance: mockBalance,
+                provider: "hashconnect",
+              },
+            });
             return;
           } catch (hcErr) {
-            console.warn('HashConnect init/connect failed, falling back to mock dev wallet', hcErr);
-            const mockAddress = `hashdev:${Math.random().toString(36).slice(2, 10)}`;
+            console.warn(
+              "HashConnect init/connect failed, falling back to mock dev wallet",
+              hcErr
+            );
+            const mockAddress = `hashdev:${Math.random()
+              .toString(36)
+              .slice(2, 10)}`;
             const mockBalance = Math.floor(Math.random() * 10000);
-            dispatch({ type: 'CONNECT_SUCCESS', payload: { address: mockAddress, balance: mockBalance, provider: 'mock-dev' } });
+            dispatch({
+              type: "CONNECT_SUCCESS",
+              payload: {
+                address: mockAddress,
+                balance: mockBalance,
+                provider: "mock-dev",
+              },
+            });
             return;
           }
         } catch (e) {
           // hashconnect library not present — use a mock dev wallet
-          const mockAddress = `hashdev:${Math.random().toString(36).slice(2, 10)}`;
+          const mockAddress = `hashdev:${Math.random()
+            .toString(36)
+            .slice(2, 10)}`;
           const mockBalance = Math.floor(Math.random() * 10000);
-          dispatch({ type: 'CONNECT_SUCCESS', payload: { address: mockAddress, balance: mockBalance, provider: 'mock-dev' } });
+          dispatch({
+            type: "CONNECT_SUCCESS",
+            payload: {
+              address: mockAddress,
+              balance: mockBalance,
+              provider: "mock-dev",
+            },
+          });
           return;
         }
       }
@@ -187,55 +227,88 @@ export function WalletProvider({ children }: WalletProviderProps) {
       if (hasHashpack) {
         try {
           const provider = win.hashpack;
-          if (provider && typeof provider.connect === 'function') {
+          if (provider && typeof provider.connect === "function") {
             const result = await provider.connect();
-            const address = result?.account || result?.accountId || result?.address || String(result) || `hash:${Math.random().toString(36).slice(2, 10)}`;
+            const address =
+              result?.account ||
+              result?.accountId ||
+              result?.address ||
+              String(result) ||
+              `hash:${Math.random().toString(36).slice(2, 10)}`;
             const mockBalance = Math.floor(Math.random() * 10000);
-            dispatch({ type: 'CONNECT_SUCCESS', payload: { address, balance: mockBalance, provider: 'hashpack' } });
+            dispatch({
+              type: "CONNECT_SUCCESS",
+              payload: { address, balance: mockBalance, provider: "hashpack" },
+            });
             return;
           }
 
-          const addressGuess = provider?.selectedAccount || provider?.account || provider?.accountId || undefined;
+          const addressGuess =
+            provider?.selectedAccount ||
+            provider?.account ||
+            provider?.accountId ||
+            undefined;
           if (addressGuess) {
             const mockBalance = Math.floor(Math.random() * 10000);
-            dispatch({ type: 'CONNECT_SUCCESS', payload: { address: String(addressGuess), balance: mockBalance, provider: 'hashpack' } });
+            dispatch({
+              type: "CONNECT_SUCCESS",
+              payload: {
+                address: String(addressGuess),
+                balance: mockBalance,
+                provider: "hashpack",
+              },
+            });
             return;
           }
 
-          dispatch({ type: 'SHOW_DUMMY_OPTION', payload: true });
-          dispatch({ type: 'CONNECT_ERROR', payload: 'HashPack found but automatic connect failed; please use the wallet UI.' });
+          dispatch({ type: "SHOW_DUMMY_OPTION", payload: true });
+          dispatch({
+            type: "CONNECT_ERROR",
+            payload:
+              "HashPack found but automatic connect failed; please use the wallet UI.",
+          });
           return;
         } catch (err) {
-          console.warn('Error connecting to HashPack', err);
-          dispatch({ type: 'SHOW_DUMMY_OPTION', payload: true });
-          dispatch({ type: 'CONNECT_ERROR', payload: 'Failed to connect to HashPack' });
+          console.warn("Error connecting to HashPack", err);
+          dispatch({ type: "SHOW_DUMMY_OPTION", payload: true });
+          dispatch({
+            type: "CONNECT_ERROR",
+            payload: "Failed to connect to HashPack",
+          });
           return;
         }
       } else {
         // HashPack not present in production: offer dummy wallet option in UI
-        dispatch({ type: 'SHOW_DUMMY_OPTION', payload: true });
-        dispatch({ type: 'CONNECT_ERROR', payload: 'HashPack not detected' });
+        dispatch({ type: "SHOW_DUMMY_OPTION", payload: true });
+        dispatch({ type: "CONNECT_ERROR", payload: "HashPack not detected" });
         return;
       }
     } catch (error) {
-      dispatch({ type: 'CONNECT_ERROR', payload: error instanceof Error ? error.message : 'Failed to connect wallet' });
+      dispatch({
+        type: "CONNECT_ERROR",
+        payload:
+          error instanceof Error ? error.message : "Failed to connect wallet",
+      });
     }
   };
 
   const connectDummy = async () => {
-    dispatch({ type: 'CONNECT_START' });
+    dispatch({ type: "CONNECT_START" });
     await new Promise((r) => setTimeout(r, 500));
     const dummy = `dummy:${Math.random().toString(36).slice(2, 10)}`;
     const mockBalance = Math.floor(Math.random() * 10000);
-    dispatch({ type: 'CONNECT_SUCCESS', payload: { address: dummy, balance: mockBalance, provider: 'dummy' } });
+    dispatch({
+      type: "CONNECT_SUCCESS",
+      payload: { address: dummy, balance: mockBalance, provider: "dummy" },
+    });
   };
 
   const disconnect = () => {
-    dispatch({ type: 'DISCONNECT' });
+    dispatch({ type: "DISCONNECT" });
   };
 
   const updateBalance = (balance: number) => {
-    dispatch({ type: 'UPDATE_BALANCE', payload: balance });
+    dispatch({ type: "UPDATE_BALANCE", payload: balance });
   };
 
   const value: WalletContextType = {
@@ -247,9 +320,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
   };
 
   return (
-    <WalletContext.Provider value={value}>
-      {children}
-    </WalletContext.Provider>
+    <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
   );
 }
 
@@ -257,7 +328,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 export function useWalletContext() {
   const context = useContext(WalletContext);
   if (context === undefined) {
-    throw new Error('useWalletContext must be used within a WalletProvider');
+    throw new Error("useWalletContext must be used within a WalletProvider");
   }
   return context;
 }
