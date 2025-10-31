@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useWalletContext } from "../context/WalletContext";
 import { MoreVertical, LogOut, Copy } from "lucide-react";
 
 export function SidebarWalletInfo() {
+  const router = useRouter();
   const {
     address: publicKey,
     isConnected: connected,
@@ -43,19 +45,15 @@ export function SidebarWalletInfo() {
   const handleDisconnect = () => {
     disconnect();
     setShowMenu(false);
+    router.push("/");
   };
 
   if (!connected) {
     return (
       <button
         onClick={() => {
-          // trigger connect via context (let UI decide which connector to use)
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          (async () => {
-            const ctx = await import("../context/WalletContext");
-            // call connect from the live context via DOM-driven event is not straightforward here;
-            // instead, the top-level WalletButton handles connection flows. Keep placeholder button.
-          })();
+          // Placeholder - actual connection is handled by WalletButton component
+          router.push("/");
         }}
         className="!w-full !bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !rounded-lg !px-4 !py-3 !font-medium !transition-all !duration-300 !border-0"
         style={{

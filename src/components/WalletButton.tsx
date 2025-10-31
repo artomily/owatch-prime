@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useWalletContext } from "../context/WalletContext";
 
 export function WalletButton() {
+  const router = useRouter();
   const {
     isConnected,
     address,
@@ -29,6 +31,11 @@ export function WalletButton() {
     return addr;
   };
 
+  const handleDisconnect = () => {
+    disconnect();
+    router.push("/");
+  };
+
   if (isConnected) {
     return (
       <div className="flex items-center space-x-4">
@@ -47,7 +54,7 @@ export function WalletButton() {
         </div>
 
         <button
-          onClick={() => disconnect()}
+          onClick={handleDisconnect}
           className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-3 py-2 text-sm font-medium"
         >
           Disconnect
