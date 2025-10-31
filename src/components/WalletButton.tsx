@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWalletContext } from "../context/WalletContext";
+import { Modal } from "./ui/modal";
+import { AlertCircle, Wallet as WalletIcon } from "lucide-react";
 
 export function WalletButton() {
   const router = useRouter();
@@ -17,13 +19,28 @@ export function WalletButton() {
     connect,
     connectDummy,
     disconnect,
+    clearDummyOption,
   } = useWalletContext();
   const [localBalance, setLocalBalance] = useState<number>(0);
+  const [showHashPackModal, setShowHashPackModal] = useState<boolean>(false);
 
   useEffect(() => {
     // Mirror context balance to local UI state (or load from localStorage)
     setLocalBalance(balance || 0);
   }, [balance]);
+
+  // Show modal when HashPack is not detected and there's an error
+  useEffect(() => {
+    if (
+      showDummyOption &&
+      error &&
+      !isConnected &&
+      !isConnecting &&
+      !showHashPackModal
+    ) {
+      setShowHashPackModal(true);
+    }
+  }, [showDummyOption, error, isConnected, isConnecting, showHashPackModal]);
 
   const formatWalletAddress = (addr: string) => {
     if (!addr) return "";
@@ -34,6 +51,29 @@ export function WalletButton() {
   const handleDisconnect = () => {
     disconnect();
     router.push("/");
+  };
+
+  const handleConnect = async () => {
+    // Always try to connect first
+    await connect();
+    // Modal will show automatically via useEffect if HashPack is not detected
+  };
+
+  const handleUseDummyWallet = () => {
+    setShowHashPackModal(false);
+    clearDummyOption();
+    connectDummy();
+  };
+
+  const handleInstallHashPack = () => {
+    window.open("https://hashpack.app/", "_blank");
+    setShowHashPackModal(false);
+    clearDummyOption();
+  };
+
+  const handleCloseModal = () => {
+    setShowHashPackModal(false);
+    clearDummyOption();
   };
 
   if (isConnected) {
@@ -65,50 +105,66 @@ export function WalletButton() {
 
   // Not connected UI
   return (
-    <div className="flex items-center space-x-3">
-      {isConnecting ? (
-        <div className="px-4 py-2 bg-gray-700 text-white rounded">
-          Connecting...
-        </div>
-      ) : (
-        <>
-          {/* If HashPack detected in production, prefer that. In dev, prefer HashConnect flow. */}
-          {hashpackAvailable ? (
-            <button
-              onClick={() => connect()}
-              className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 font-medium"
-            >
-              Connect with HashPack
-            </button>
-          ) : showDummyOption ? (
-            <div className="flex space-x-2">
-              <button
-                onClick={() => connectDummy()}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg px-4 py-2 font-medium"
-              >
-                Continue with dummy wallet
-              </button>
-              <a
-                href="https://hashpack.app/"
-                target="_blank"
-                rel="noreferrer"
-                className="bg-gray-700 hover:bg-gray-800 text-white rounded-lg px-4 py-2 font-medium"
-              >
-                Install HashPack
-              </a>
-            </div>
-          ) : (
-            <button
-              onClick={() => connect()}
-              className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 font-medium"
-            >
-              Connect Wallet
-            </button>
-          )}
-        </>
-      )}
+    <>
+      <div className="flex items-center space-x-3">
+        {isConnecting ? (
+          <div className="px-4 py-2 bg-gray-700 text-white rounded">
+            Connecting...
+          </div>
+        ) : (
+          <button
+            onClick={handleConnect}
+            className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 font-medium transition-colors"
+          >
+            {hashpackAvailable ? "Connect with HashPack" : "Connect Wallet"}
+          </button>
+        )}
 
-      {error ? <div className="text-red-400 text-sm">{error}</div> : null}
-    </div>
+        {error && !showHashPackModal ? (
+          <div className="text-red-400 text-sm">{error}</div>
+        ) : null}
+      </div>
+
+      {/* HashPack Not Detected Modal */}
+      <Modal
+        isOpen={showHashPackModal}
+        onClose={handleCloseModal}
+        title="HashPack Not Detected"
+      >
+        <div className="space-y-4">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                HashPack wallet extension is not detected in your browser. You
+                can either:
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={handleInstallHashPack}
+              className="w-full flex items-center justify-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-3 font-medium transition-colors"
+            >
+              <WalletIcon className="w-5 h-5" />
+              <span>Install HashPack Extension</span>
+            </button>
+
+            <button
+              onClick={handleUseDummyWallet}
+              className="w-full flex items-center justify-center space-x-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg px-4 py-3 font-medium transition-colors"
+            >
+              <span>Continue with Dummy Wallet</span>
+            </button>
+          </div>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            Dummy wallet is for testing purposes only and doesn't connect to
+            real blockchain.
+          </p>
+        </div>
+      </Modal>
+    </>
   );
 }

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui";
 import { Play, Menu, X } from "lucide-react";
-import { WalletButton } from "../WalletButton";
 
 interface LandingNavbarProps {
   // Reserved for future use
@@ -51,11 +50,6 @@ export function LandingNavbar({}: LandingNavbarProps) {
             ))}
           </div>
 
-          {/* Connect Wallet Button */}
-          <div className="hidden md:block">
-            <WalletButton />
-          </div>
-
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -82,9 +76,6 @@ export function LandingNavbar({}: LandingNavbarProps) {
                   {item.label}
                 </button>
               ))}
-              <div className="pt-2">
-                <WalletButton />
-              </div>
             </div>
           </div>
         )}

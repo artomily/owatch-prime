@@ -40,6 +40,7 @@ interface WalletContextType extends WalletState {
   connectDummy: () => Promise<void>;
   disconnect: () => void;
   updateBalance: (balance: number) => void;
+  clearDummyOption: () => void;
 }
 
 // Initial state
@@ -187,37 +188,29 @@ export function WalletProvider({ children }: WalletProviderProps) {
             return;
           } catch (hcErr) {
             console.warn(
-              "HashConnect init/connect failed, falling back to mock dev wallet",
+              "HashConnect init/connect failed, showing modal for user choice",
               hcErr
             );
-            const mockAddress = `hashdev:${Math.random()
-              .toString(36)
-              .slice(2, 10)}`;
-            const mockBalance = Math.floor(Math.random() * 10000);
-            dispatch({
-              type: "CONNECT_SUCCESS",
-              payload: {
-                address: mockAddress,
-                balance: mockBalance,
-                provider: "mock-dev",
-              },
-            });
+            // Show modal instead of auto-connecting with mock wallet (only set once)
+            if (!state.showDummyOption) {
+              dispatch({ type: "SHOW_DUMMY_OPTION", payload: true });
+              dispatch({
+                type: "CONNECT_ERROR",
+                payload: "HashConnect not available. Please choose an option.",
+              });
+            }
             return;
           }
         } catch (e) {
-          // hashconnect library not present — use a mock dev wallet
-          const mockAddress = `hashdev:${Math.random()
-            .toString(36)
-            .slice(2, 10)}`;
-          const mockBalance = Math.floor(Math.random() * 10000);
-          dispatch({
-            type: "CONNECT_SUCCESS",
-            payload: {
-              address: mockAddress,
-              balance: mockBalance,
-              provider: "mock-dev",
-            },
-          });
+          // hashconnect library not present — show modal for user choice (only set once)
+          if (!state.showDummyOption) {
+            dispatch({ type: "SHOW_DUMMY_OPTION", payload: true });
+            dispatch({
+              type: "CONNECT_ERROR",
+              payload:
+                "HashConnect library not installed. Please choose an option.",
+            });
+          }
           return;
         }
       }
@@ -311,12 +304,17 @@ export function WalletProvider({ children }: WalletProviderProps) {
     dispatch({ type: "UPDATE_BALANCE", payload: balance });
   };
 
+  const clearDummyOption = () => {
+    dispatch({ type: "SHOW_DUMMY_OPTION", payload: false });
+  };
+
   const value: WalletContextType = {
     ...state,
     connect,
     connectDummy,
     disconnect,
     updateBalance,
+    clearDummyOption,
   };
 
   return (

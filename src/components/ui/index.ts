@@ -13,6 +13,7 @@ export {
 export { Badge, badgeVariants } from "./badge";
 export { WalletStatus } from "./wallet-status";
 export { ThemeToggle } from "./theme-toggle";
+export { Modal } from "./modal";
 export { GlassCard } from "./glass-card";
 export { VideoCard } from "./video-card";
 export { StatsCard } from "./stats-card";
